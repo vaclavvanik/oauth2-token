@@ -190,8 +190,9 @@ puts it in an exception or a log line.
 Everything else this package throws implements [`Exception\Exception`](src/Exception/Exception.php):
 
 - [`Exception\ErrorResponse`](src/Exception/ErrorResponse.php) - the token endpoint answered with an OAuth
-  error; carries `getError()`, `getErrorDescription()`, `getErrorUri()` and the PSR-7 `getResponse()`. Throw
-  this from your `TokenProvider` implementation on a non-2xx response.
+  error; carries `getError()`, `getErrorDescription()`, `getErrorUri()` and the PSR-7 `getResponse()`. Build
+  it with `ErrorResponse::fromResponse($response, $parsedBody)` and throw it from your `TokenProvider`
+  implementation on a non-2xx response.
 - [`Exception\Runtime`](src/Exception/Runtime.php) - as above. Corrupt cache *content* is not an error - it
   degrades to an empty cache that rebuilds itself - but a cache file that cannot be read or written at all
   (permissions, a directory) throws this, carrying the underlying reason.

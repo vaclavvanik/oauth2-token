@@ -16,7 +16,11 @@ final class ErrorResponseTest extends TestCase
     {
         $response = $this->createMock(ResponseInterface::class);
 
-        $exception = new ErrorResponse($response, 'invalid_client', 'Client authentication failed', 'https://err');
+        $exception = ErrorResponse::fromResponse($response, [
+            ErrorResponse::ERROR => 'invalid_client',
+            ErrorResponse::ERROR_DESCRIPTION => 'Client authentication failed',
+            ErrorResponse::ERROR_URI => 'https://err',
+        ]);
 
         $this->assertInstanceOf(DomainException::class, $exception);
         $this->assertInstanceOf(Exception::class, $exception);
@@ -25,5 +29,14 @@ final class ErrorResponseTest extends TestCase
         $this->assertSame('Client authentication failed', $exception->getErrorDescription());
         $this->assertSame('https://err', $exception->getErrorUri());
         $this->assertSame($response, $exception->getResponse());
+    }
+
+    public function testDefaultsMissingErrorFieldsToEmptyStrings(): void
+    {
+        $exception = ErrorResponse::fromResponse($this->createMock(ResponseInterface::class), []);
+
+        $this->assertSame('', $exception->getError());
+        $this->assertSame('', $exception->getErrorDescription());
+        $this->assertSame('', $exception->getErrorUri());
     }
 }

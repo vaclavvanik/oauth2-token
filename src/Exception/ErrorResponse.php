@@ -7,7 +7,7 @@ namespace VaclavVanik\Oauth2Token\Exception;
 use DomainException;
 use Psr\Http;
 
-class ErrorResponse extends DomainException implements Exception
+final class ErrorResponse extends DomainException implements Exception
 {
     /** @var Http\Message\ResponseInterface */
     private $response;
@@ -21,7 +21,13 @@ class ErrorResponse extends DomainException implements Exception
     /** @var string */
     private $errorUri;
 
-    public function __construct(
+    public const ERROR = 'error';
+
+    public const ERROR_DESCRIPTION = 'error_description';
+
+    public const ERROR_URI = 'error_uri';
+
+    private function __construct(
         Http\Message\ResponseInterface $response,
         string $error,
         string $errorDescription,
@@ -33,6 +39,20 @@ class ErrorResponse extends DomainException implements Exception
         $this->errorUri = $errorUri;
 
         parent::__construct($error);
+    }
+
+    /**
+     * @param array{error?: string, error_description?: string, error_uri?: string} $data The parsed
+     *        RFC 6749 section 5.2 error response body.
+     */
+    public static function fromResponse(Http\Message\ResponseInterface $response, array $data): self
+    {
+        return new self(
+            $response,
+            (string) ($data[self::ERROR] ?? ''),
+            (string) ($data[self::ERROR_DESCRIPTION] ?? ''),
+            (string) ($data[self::ERROR_URI] ?? ''),
+        );
     }
 
     public function getResponse(): Http\Message\ResponseInterface
