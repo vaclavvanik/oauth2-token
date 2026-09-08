@@ -1,0 +1,45 @@
+{
+  "name": "vaclavvanik/oauth2-token",
+  "description": "OAuth 2.0 access-token contract with pluggable, expiry-aware token caching",
+  "license": "MIT",
+  "type": "library",
+  "homepage": "https://github.com/vaclavvanik/oauth2-token",
+  "keywords": [
+    "oauth",
+    "oauth2",
+    "client-credentials",
+    "access-token",
+    "token-cache",
+    "jwt"
+  ],
+  "authors": [
+    {
+      "name": "Václav Vaník",
+      "email": "vaclav.vanik@gmail.com"
+    }
+  ],
+  "config": {
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^7.3 || ^8.0",
+    "ext-json": "*",
+    "psr/http-client": "^1.0",
+    "psr/http-message": "^1.0 || ^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "VaclavVanik\\Oauth2Token\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "VaclavVanikTest\\Oauth2Token\\": "test/unit"
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
+  }
+}

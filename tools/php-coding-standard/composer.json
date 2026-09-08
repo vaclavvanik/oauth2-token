@@ -1,0 +1,10 @@
+{
+    "require": {
+        "vaclavvanik/coding-standard": "^0.10.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
