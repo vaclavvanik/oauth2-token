@@ -119,22 +119,18 @@ final class JsonFileRepository implements Repository
      *
      * @return array<string, Entry>
      *
-     * @throws Exception\Runtime
+     * @throws RuntimeException
      */
     private function readFile(): array
     {
         if (is_dir($this->file)) {
-            throw new Exception\Runtime(
-                sprintf('Cannot read cache file "%s": it is a directory.', $this->file),
-            );
+            throw new RuntimeException($this->fileError('read', 'it is a directory'));
         }
 
         $data = self::box('file_get_contents', $this->file);
 
         if ($data === false || self::$lastError !== null) {
-            throw new Exception\Runtime(
-                sprintf('Cannot read cache file "%s": %s.', $this->file, self::$lastError ?? 'unknown error'),
-            );
+            throw new RuntimeException($this->fileError('read', self::$lastError ?? 'unknown error'));
         }
 
         try {
@@ -164,9 +160,14 @@ final class JsonFileRepository implements Repository
         }
     }
 
+    /** @throws Exception\Runtime */
     private function cacheRefresh(): void
     {
-        $this->cache = $this->fileExists() ? $this->readFile() : null;
+        try {
+            $this->cache = $this->fileExists() ? $this->readFile() : null;
+        } catch (Throwable $e) {
+            throw Exception\Runtime::fromThrowable($e);
+        }
     }
 
     /**
@@ -180,11 +181,11 @@ final class JsonFileRepository implements Repository
         $tmp = $this->file . '.' . uniqid('', true) . '.tmp';
 
         if (self::box('file_put_contents', $tmp, $data, LOCK_EX) === false) {
-            throw new RuntimeException($this->writeError());
+            throw new RuntimeException($this->fileError('write', self::$lastError ?? 'unknown error'));
         }
 
         if (self::box('rename', $tmp, $this->file) === false) {
-            $error = $this->writeError();
+            $error = $this->fileError('write', self::$lastError ?? 'unknown error');
 
             self::box('unlink', $tmp);
 
@@ -192,9 +193,9 @@ final class JsonFileRepository implements Repository
         }
     }
 
-    private function writeError(): string
+    private function fileError(string $verb, string $reason): string
     {
-        return sprintf('Cannot write cache file "%s": %s.', $this->file, self::$lastError ?? 'unknown error');
+        return sprintf('Cannot %s cache file "%s": %s.', $verb, $this->file, $reason);
     }
 
     /**

@@ -15,7 +15,7 @@ final class NotFoundTest extends TestCase
 {
     public function testIsDomainExceptionAndPackageException(): void
     {
-        $exception = new NotFound('client-id');
+        $exception = NotFound::fromKey(new Key('client-id', 'client-secret', null));
 
         $this->assertInstanceOf(DomainException::class, $exception);
         $this->assertInstanceOf(Exception::class, $exception);
