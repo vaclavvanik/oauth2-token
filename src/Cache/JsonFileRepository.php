@@ -15,6 +15,7 @@ use VaclavVanik\Oauth2Token\ExpirationValidator;
 use function array_filter;
 use function file_exists;
 use function is_array;
+use function is_dir;
 use function json_decode;
 use function json_encode;
 use function restore_error_handler;
@@ -122,6 +123,12 @@ final class JsonFileRepository implements Repository
      */
     private function readFile(): array
     {
+        if (is_dir($this->file)) {
+            throw new Exception\Runtime(
+                sprintf('Cannot read cache file "%s": it is a directory.', $this->file),
+            );
+        }
+
         $data = self::box('file_get_contents', $this->file);
 
         if ($data === false || self::$lastError !== null) {
