@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace VaclavVanik\Oauth2Token\Jwt;
 
-use InvalidArgumentException;
-use RuntimeException;
 use Throwable;
 
 use function base64_decode;
@@ -27,16 +25,13 @@ class Decoder
         return self::isPartsValid($parts);
     }
 
-    /**
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
-     */
+    /** @throws Exception\InvalidToken */
     public static function decode(string $token): Jwt
     {
         $parts = self::parseParts($token);
 
         if (self::isPartsValid($parts) === false) {
-            throw new InvalidArgumentException('Given JWT token has invalid number of segments.');
+            throw Exception\InvalidToken::wrongSegmentCount();
         }
 
         return new Jwt(
@@ -57,17 +52,17 @@ class Decoder
         return count($parts) === 3;
     }
 
-    /** @throws RuntimeException */
+    /** @throws Exception\InvalidToken */
     private static function jsonDecode(string $string): array
     {
         try {
             $decoded = json_decode($string, true, 512, JSON_THROW_ON_ERROR);
         } catch (Throwable $e) {
-            throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
+            throw Exception\InvalidToken::fromThrowable($e);
         }
 
         if (! is_array($decoded)) {
-            throw new RuntimeException('Given JWT token segment is not a JSON object.');
+            throw Exception\InvalidToken::segmentNotJsonObject();
         }
 
         return $decoded;

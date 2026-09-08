@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace VaclavVanikTest\Oauth2Token\Jwt;
 
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use VaclavVanik\Oauth2Token\Jwt\Decoder;
+use VaclavVanik\Oauth2Token\Jwt\Exception\InvalidToken;
 use VaclavVanikTest\Oauth2Token\Support\JwtFactory;
 
 final class DecoderTest extends TestCase
@@ -59,14 +58,14 @@ final class DecoderTest extends TestCase
 
     public function testDecodeThrowsForWrongSegmentCount(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidToken::class);
 
         Decoder::decode('only.two');
     }
 
     public function testDecodeThrowsWhenSegmentIsNotJson(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(InvalidToken::class);
 
         // base64 of "notjson" in header and payload
         Decoder::decode('bm90anNvbg==.bm90anNvbg==.sig');
@@ -74,7 +73,7 @@ final class DecoderTest extends TestCase
 
     public function testDecodeThrowsWhenSegmentIsJsonButNotAnObject(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(InvalidToken::class);
 
         // base64url of "123" in both header and payload
         Decoder::decode('MTIz.MTIz.sig');

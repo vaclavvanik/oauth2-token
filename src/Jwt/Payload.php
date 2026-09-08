@@ -6,9 +6,6 @@ namespace VaclavVanik\Oauth2Token\Jwt;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use InvalidArgumentException;
-
-use function sprintf;
 
 final class Payload
 {
@@ -112,7 +109,7 @@ final class Payload
      * } $data
      * phpcs:enable Squiz.Commenting.FunctionComment.MissingParamName
      *
-     * @throws InvalidArgumentException
+     * @throws Exception\InvalidToken
      */
     public static function fromArray(array $data): self
     {
@@ -180,7 +177,7 @@ final class Payload
     /**
      * @param float|int|string|null $numericDate
      *
-     * @throws InvalidArgumentException
+     * @throws Exception\InvalidToken
      */
     private static function toDateTimeInterface($numericDate): ?DateTimeInterface
     {
@@ -193,7 +190,7 @@ final class Payload
         $dateTime = DateTimeImmutable::createFromFormat('U', $timestamp);
 
         if ($dateTime === false) {
-            throw new InvalidArgumentException(sprintf('Cannot create date time from "%s".', $timestamp));
+            throw Exception\InvalidToken::invalidNumericDate($timestamp);
         }
 
         return $dateTime;
