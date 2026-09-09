@@ -12,43 +12,51 @@ use VaclavVanik\Oauth2Token\Exception\Exception;
 
 final class ErrorResponseTest extends TestCase
 {
-    public function testExposesTheOauthErrorFieldsAndResponse(): void
+    public function testIsDomainExceptionAndPackageException(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
-
-        $exception = ErrorResponse::fromResponse($response, [
-            ErrorResponse::ERROR => 'invalid_client',
-            ErrorResponse::ERROR_DESCRIPTION => 'Client authentication failed',
-            ErrorResponse::ERROR_URI => 'https://err',
-        ]);
+        $exception = new ErrorResponse($this->response(), 'invalid_client');
 
         $this->assertInstanceOf(DomainException::class, $exception);
         $this->assertInstanceOf(Exception::class, $exception);
-        $this->assertSame('invalid_client', $exception->getMessage());
+    }
+
+    public function testExposesEveryFieldPassedToTheConstructor(): void
+    {
+        $response = $this->response();
+
+        $exception = new ErrorResponse($response, 'invalid_client', 'Client authentication failed', 'https://err/1');
+
+        $this->assertSame($response, $exception->getResponse());
         $this->assertSame('invalid_client', $exception->getError());
         $this->assertSame('Client authentication failed', $exception->getErrorDescription());
-        $this->assertSame('https://err', $exception->getErrorUri());
-        $this->assertSame($response, $exception->getResponse());
+        $this->assertSame('https://err/1', $exception->getErrorUri());
     }
 
-    public function testDefaultsMissingErrorFieldsToEmptyStrings(): void
+    public function testTheOauthErrorIsAlsoTheExceptionMessage(): void
     {
-        $exception = ErrorResponse::fromResponse($this->createMock(ResponseInterface::class), []);
+        $exception = new ErrorResponse($this->response(), 'invalid_grant', 'the description');
 
-        $this->assertSame('', $exception->getError());
+        $this->assertSame('invalid_grant', $exception->getMessage());
+    }
+
+    public function testErrorDescriptionAndErrorUriDefaultToEmptyStrings(): void
+    {
+        $exception = new ErrorResponse($this->response(), 'invalid_client');
+
         $this->assertSame('', $exception->getErrorDescription());
         $this->assertSame('', $exception->getErrorUri());
     }
 
-    public function testCanBeConstructedDirectlyWithOptionalDescriptionAndUri(): void
+    public function testTakesAnErrorDescriptionWithoutAnErrorUri(): void
     {
-        $response = $this->createMock(ResponseInterface::class);
+        $exception = new ErrorResponse($this->response(), 'invalid_scope', 'unknown scope "x"');
 
-        $exception = new ErrorResponse($response, 'invalid_grant');
-
-        $this->assertSame('invalid_grant', $exception->getError());
-        $this->assertSame('', $exception->getErrorDescription());
+        $this->assertSame('unknown scope "x"', $exception->getErrorDescription());
         $this->assertSame('', $exception->getErrorUri());
-        $this->assertSame($response, $exception->getResponse());
+    }
+
+    private function response(): ResponseInterface
+    {
+        return $this->createMock(ResponseInterface::class);
     }
 }

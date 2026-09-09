@@ -41,20 +41,6 @@ final class ErrorResponse extends DomainException implements Exception
         parent::__construct($error);
     }
 
-    /**
-     * @param array{error?: string, error_description?: string, error_uri?: string} $data The parsed
-     *        RFC 6749 section 5.2 error response body.
-     */
-    public static function fromResponse(Http\Message\ResponseInterface $response, array $data): self
-    {
-        return new self(
-            $response,
-            (string) ($data[self::ERROR] ?? ''),
-            (string) ($data[self::ERROR_DESCRIPTION] ?? ''),
-            (string) ($data[self::ERROR_URI] ?? ''),
-        );
-    }
-
     public function getResponse(): Http\Message\ResponseInterface
     {
         return $this->response;
