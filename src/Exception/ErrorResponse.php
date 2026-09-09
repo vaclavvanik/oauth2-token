@@ -27,11 +27,11 @@ final class ErrorResponse extends DomainException implements Exception
 
     public const ERROR_URI = 'error_uri';
 
-    private function __construct(
+    public function __construct(
         Http\Message\ResponseInterface $response,
         string $error,
-        string $errorDescription,
-        string $errorUri
+        string $errorDescription = '',
+        string $errorUri = ''
     ) {
         $this->response = $response;
         $this->error = $error;

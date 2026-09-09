@@ -39,4 +39,16 @@ final class ErrorResponseTest extends TestCase
         $this->assertSame('', $exception->getErrorDescription());
         $this->assertSame('', $exception->getErrorUri());
     }
+
+    public function testCanBeConstructedDirectlyWithOptionalDescriptionAndUri(): void
+    {
+        $response = $this->createMock(ResponseInterface::class);
+
+        $exception = new ErrorResponse($response, 'invalid_grant');
+
+        $this->assertSame('invalid_grant', $exception->getError());
+        $this->assertSame('', $exception->getErrorDescription());
+        $this->assertSame('', $exception->getErrorUri());
+        $this->assertSame($response, $exception->getResponse());
+    }
 }
